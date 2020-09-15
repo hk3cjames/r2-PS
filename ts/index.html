@@ -1,0 +1,121 @@
+<html>
+
+<head>
+  <style>
+    * {
+      margin: 2;
+      padding: 0;
+    }
+
+    .bg {
+      background-color: rgb(165, 230, 250);
+      height: 100%;
+    }
+
+    .main {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50%);
+    }
+
+    .textview {
+      width: 780px;
+      height: 40px;
+      font-size: normal;
+      text-align: center;
+    }
+
+    .button {
+      width: 100;
+      height: 40;
+      font-size: large;
+      margin-left: 700;
+      cursor: pointer;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    p {
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+  <div class="main">
+    <h2>(root blockchain authentication service)
+      <h1>RBAS</h1>
+      <h1>hash input</h1>
+
+      <h3>1. text to generate hash</h3>
+      <form name="form0">
+        <textarea name="data_in" rows="20" cols="108"> </textarea>
+      </form>
+      <input class="button" type="button" value="generate" onclick="generate()" />
+
+      <h3>2. hash to be input</h3>
+      <form name="form1">
+        <input class="textview" name="hash_view" />
+      </form>
+      <input class="button" type="button" value="insert" onclick="insert()" />
+
+      <h3>3. response (time inserted)</h3>
+      <form name="form2">
+        <input class="textview" name="rbas_ack" />
+      </form>
+      <p id="input_time">time input to rbas</p>
+  </div>
+  <script>
+    async function digestMessage(message) {
+      const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8); // hash the message
+      const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+      const hashHex = hashArray
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join(""); // convert bytes to hex string
+      return hashHex;
+    }
+
+    async function generate() {
+      const text = document.form0.data_in.value;
+      console.log(text);
+      const digestHex = await digestMessage(text);
+      console.log(digestHex);
+      document.form1.hash_view.value = digestHex;
+    }
+
+    function display_time() {
+      var d = new Date();
+      var n = d.toUTCString();
+      document.getElementById("input_time").innerHTML = n;
+    }
+
+    async function insert() {
+      tsId = 'ts-1000'
+      thash = document.form1.hash_view.value
+
+      const data = { tsId, thash }
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }
+      const res = await fetch('/hashFile', options)
+      const disp = await res.json()
+      console.log(disp)
+    }
+  </script>
+</body>
+
+</html>
