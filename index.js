@@ -45,7 +45,6 @@ app.post("/hashFile", async (req, res) => {
   });
 
   data = rxjson;
-
   const options = {
     method: "POST",
     headers: {
