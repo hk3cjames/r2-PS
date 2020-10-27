@@ -10,35 +10,46 @@ app.listen(3100, () =>
   console.log("PS listening at port 3100" + "\n" + "connect to DB-C at :3200")
 );
 app.use(express.json({ limit: "1mb" }));
+PSID = "RBAS.ps1000.ts"
+
+linkHash = crypto.createHash("sha256").update("RBAS.ps1000").digest("hex"); 
 
 var res1 = {};
 tsKeyOriginal = [];
 tsKey = [];
 tsName = [];
 tsIn = [];
-tsRdy = [];
+
 dashboardDisp = [];
-linkHash = "";
+hashToDBc=[]
+hashToDBcTSname=[]
+
 displayCount = 0;
 nextChain = "";
 busyFlag = false;
+hashToDBcCount = 0;
 
-let i = 0;
-let j = 0;
-let k = 0;
+// let i = 0;
+// let j = 0;
+// let k = 0;
+
 
 for (i = 0; i < 1000; i++) {
   k = 1000 + i;
-  j = "" + k;
-  tsName[i] = j;
-  tsKey[i] = crypto.createHash("sha256").update(j).digest("hex");
-  tsKeyOriginal[i] = tsKey[i];
-  tsIn[i] = "abcd1234567890abcdef";
-  tsRdy[i] = true;
+  j = PSID + k;
+  tsName[i] = j; // j: name to gen initial hash key
+  tsKey[i] = crypto.createHash("sha256").update(j).digest("hex"); 
+  tsKeyOriginal[i] = tsKey[i];// initial key
+
+  tsIn[i] = "";
+
+  hashToDBc[i] = ""
+  hashToDBcTSname[i] = ""
 }
 
+console.log(tsKeyOriginal)
 console.log(tsName);
-console.log(tsKey);
+
 hashCount = 0;
 tickCounter = 0;
 result = 0;
@@ -60,12 +71,13 @@ async function timeAdj() {
 
 app.post("/hashFile", async (req, res) => {
   rxjson = req.body;
-  // console.log("TS input json");
-  // console.log(rxjson)
+  console.log("TS input json");
+  console.log(rxjson)
 
   while (busyFlag == true) {
     setInterval(timeAdj, 10);
   }
+
   tsPointer = checkTSname(rxjson.tsId, rxjson.chainId);
   // console.log("tsId =" + rxjson.tsId) //==index of input hash
   // console.log("tsPointer =" + tsPointer)
@@ -75,29 +87,28 @@ app.post("/hashFile", async (req, res) => {
     tsKey[tsPointer] = rxjson.tHash;
     result = "submitted";
   } else {
-    resullt = "fail: wrong name+ID";
+    result = "fail: wrong TSname/ID";
   }
 
   resJson = {
     status: result,
-    nextChainId: nextChain,
+    nextChainId: tsKey[tsPointer],
     tick: tickCounter,
   };
   res.json(resJson);
-  // console.log("PS response to TS");
-  // console.log(resJson);
+  console.log("PS response to TS");
+  console.log(resJson);
 });
 
 app.post("/PSdisplay", async (req, res) => {
-  // input from PS dashboard
+  // console.log("input from PS dashboard")
   rxjson = req.body;
   // console.log("PS dashboard req");
   // console.log(rxjson);
   while (busyFlag == true) {
-    setInterval(timeAdj, 10);
+    setInterval(timeAdj, 10); // wait till PS display json is ready
   }
   // console.log("PS response to TS");
-
   resJson = {
     cycle: tickCounter,
     cycleHashCount: displayCount,
@@ -106,13 +117,12 @@ app.post("/PSdisplay", async (req, res) => {
   };
   res.json(resJson);
   // console.log(resJson);
-
-  cycleLinkHash = tsKey[0];
 });
 
 async function intervalFunc() {
   busyFlag = true;
   tickCounter++;
+  
   // data = rxjson;
   // const options = {
   //   method: "POST",

@@ -25,8 +25,8 @@ async function intervalFunc() {
   const d = new Date();
   var str = "" + d;
   var test = str.substring(4, 24);
-
   document.getElementById("time").textContent = test;
+  
   document.getElementById("count").textContent = disp.cycleHashCount;
   document.getElementById("hash").textContent = disp.cycleLinkHash;
 
