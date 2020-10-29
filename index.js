@@ -10,9 +10,9 @@ app.listen(3100, () =>
   console.log("PS listening at port 3100" + "\n" + "connect to DB-C at :3200")
 );
 app.use(express.json({ limit: "1mb" }));
-PSID = "RBAS.ps1000.ts"
+PSID = "RBAS.ps1000.ts";
 
-linkHash = crypto.createHash("sha256").update("RBAS.ps1000").digest("hex"); 
+linkHash = crypto.createHash("sha256").update("RBAS.ps1000").digest("hex");
 
 var res1 = {};
 tsKeyOriginal = [];
@@ -21,33 +21,24 @@ tsName = [];
 tsIn = [];
 
 dashboardDisp = [];
-hashToDBc=[]
-hashToDBcTSname=[]
+hashToDBc = [];
 
-displayCount = 0;
+cycleCount = 0;
 nextChain = "";
 busyFlag = false;
 hashToDBcCount = 0;
-
-// let i = 0;
-// let j = 0;
-// let k = 0;
-
+systemTick = 0;
 
 for (i = 0; i < 1000; i++) {
   k = 1000 + i;
   j = PSID + k;
   tsName[i] = j; // j: name to gen initial hash key
-  tsKey[i] = crypto.createHash("sha256").update(j).digest("hex"); 
-  tsKeyOriginal[i] = tsKey[i];// initial key
-
-  tsIn[i] = "";
-
-  hashToDBc[i] = ""
-  hashToDBcTSname[i] = ""
+  tsKey[i] = crypto.createHash("sha256").update(j).digest("hex");
+  tsKeyOriginal[i] = tsKey[i]; // initial key
+  tsIn[i] = tsKey[i]; 
 }
 
-console.log(tsKeyOriginal)
+console.log(tsKeyOriginal);
 console.log(tsName);
 
 hashCount = 0;
@@ -71,8 +62,8 @@ async function timeAdj() {
 
 app.post("/hashFile", async (req, res) => {
   rxjson = req.body;
-  console.log("TS input json");
-  console.log(rxjson)
+  // console.log("TS input json");
+  // console.log(rxjson)
 
   while (busyFlag == true) {
     setInterval(timeAdj, 10);
@@ -96,9 +87,57 @@ app.post("/hashFile", async (req, res) => {
     tick: tickCounter,
   };
   res.json(resJson);
-  console.log("PS response to TS");
-  console.log(resJson);
+  // console.log("PS response to TS");
+  // console.log(resJson);
 });
+
+async function intervalFunc() {
+  busyFlag = true;
+
+  // console.log("PS dashboard display");
+  // console.log(tsIn);
+  cycleCount = 0;
+  hashToDBc = [];
+
+  for (i = 0; i < 1000; i++) {
+    if (tsIn[i] !== "") {
+      tHashIn = tsIn[i]
+      tNameIn = tsName[i]
+      hashToDBc[cycleCount] = {tsHashS: tHashIn, tsNameS:tNameIn };
+      cycleCount++;
+    }
+    dashboardDisp[i] = tsIn[i];  
+    tsIn[i] = "";
+
+  }
+
+  tick = systemTick;
+  systemTick++
+  psId = "RBAS.ps1000";
+  chainId = linkHash;
+  psCycleCount = cycleCount;
+  tsHash = hashToDBc;
+
+  const data = { tick, psId, chainId, psCycleCount, tsHash};
+  // console.log("post json to DB-C")
+  // console.log(data);
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  };
+
+  // res1 = await fetch("http://127.0.0.1:3200/hashFile", options); //to DB_c
+  // const DBcDisp = await res1.json();
+  // console.log(DBcDisp);
+
+  // result = disp.status;
+  // existHash = disp.hash;
+
+  busyFlag = false;
+}
 
 app.post("/PSdisplay", async (req, res) => {
   // console.log("input from PS dashboard")
@@ -110,8 +149,8 @@ app.post("/PSdisplay", async (req, res) => {
   }
   // console.log("PS response to TS");
   resJson = {
-    cycle: tickCounter,
-    cycleHashCount: displayCount,
+    cycle: systemTick,
+    cycleHashCount: cycleCount,
     cycleLinkHash: linkHash,
     dashboardDisp,
   };
@@ -119,33 +158,4 @@ app.post("/PSdisplay", async (req, res) => {
   // console.log(resJson);
 });
 
-async function intervalFunc() {
-  busyFlag = true;
-  tickCounter++;
-  
-  // data = rxjson;
-  // const options = {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify(data),
-  // };
-  // res1 = await fetch("http://127.0.0.1:3200/hashFile", options); //to DB_c
-  // const DBcDisp = await res1.json();
-  // console.log(DBcDisp);
-
-  // result = disp.status;
-  // existHash = disp.hash;
-
-  // console.log(tsIn);
-  displayCount = 0
-  for (i = 0; i < 1000; i++) {
-    if (tsIn[i] !=="") {displayCount++}
-    dashboardDisp[i] = tsIn[i];
-    tsIn[i] = "";
-  }
-  
-  busyFlag = false;
-}
 setInterval(intervalFunc, 1000);
