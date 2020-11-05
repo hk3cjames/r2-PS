@@ -13,7 +13,6 @@ app.use(express.json({ limit: "1mb" }));
 PSID = "RBAS.ps1000.ts";
 
 linkHash = crypto.createHash("sha256").update("RBAS.ps1000").digest("hex");
-
 var res1 = {};
 tsKeyOriginal = [];
 tsKey = [];
@@ -29,6 +28,9 @@ busyFlag = false;
 hashToDBcCount = 0;
 systemTick = 0;
 
+hashCount = 0;
+tickCounter = 0;
+result = 0;
 for (i = 0; i < 1000; i++) {
   k = 1000 + i;
   j = PSID + k;
@@ -37,15 +39,10 @@ for (i = 0; i < 1000; i++) {
   tsKeyOriginal[i] = tsKey[i]; // initial key
   tsIn[i] = tsKey[i]; 
 }
-
 console.log(tsKeyOriginal);
 console.log(tsName);
 
-hashCount = 0;
-tickCounter = 0;
-result = 0;
-
-function checkTSname(name, ID) {
+async function checkTSname(name, ID) {
   for (i = 0; i < 1000; i++) {
     if (name == tsName[i]) {
       if (ID == tsKey[i] || ID == tsKeyOriginal[i]) {
@@ -55,7 +52,6 @@ function checkTSname(name, ID) {
   }
   return 1000; // >= 1000
 }
-
 async function timeAdj() {
   return;
 }
@@ -65,11 +61,11 @@ app.post("/hashFile", async (req, res) => {
   // console.log("TS input json");
   // console.log(rxjson)
 
-  while (busyFlag == true) {
-    setInterval(timeAdj, 10);
-  }
+  // while (busyFlag == true) {
+  //   setInterval(timeAdj, 10);
+  // }
 
-  tsPointer = checkTSname(rxjson.tsId, rxjson.chainId);
+  tsPointer = await checkTSname(rxjson.tsId, rxjson.chainId);
   // console.log("tsId =" + rxjson.tsId) //==index of input hash
   // console.log("tsPointer =" + tsPointer)
 
@@ -111,7 +107,7 @@ async function intervalFunc() {
 
   }
 
-  tick = systemTick;
+  tick = systemTick; // local tick = systemtick
   systemTick++
   psId = "RBAS.ps1000";
   chainId = linkHash;
@@ -129,13 +125,14 @@ async function intervalFunc() {
     body: JSON.stringify(data),
   };
 
-  // res1 = await fetch("http://127.0.0.1:3200/hashFile", options); //to DB_c
-  // const DBcDisp = await res1.json();
-  // console.log(DBcDisp);
+  res1 = await fetch("http://127.0.0.1:3200/hashFile", options); //to DB_c
+  const DBc1Replay = await res1.json();
 
+  // console.log(DBc1Replay);
   // result = disp.status;
   // existHash = disp.hash;
-
+  systemTick = DBc1Replay.tick    // sync system tick to DB-C
+  linkHash = DBc1Replay.nextChainId
   busyFlag = false;
 }
 
@@ -144,9 +141,9 @@ app.post("/PSdisplay", async (req, res) => {
   rxjson = req.body;
   // console.log("PS dashboard req");
   // console.log(rxjson);
-  while (busyFlag == true) {
-    setInterval(timeAdj, 10); // wait till PS display json is ready
-  }
+  // while (busyFlag == true) {
+  //   setInterval(timeAdj, 10); // wait till PS display json is ready
+  // }
   // console.log("PS response to TS");
   resJson = {
     cycle: systemTick,
