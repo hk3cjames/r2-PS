@@ -17,8 +17,8 @@ async function intervalFunc() {
     k = disp.dashboardDisp[j]
     var hashDisp = "" + k
     // console.log(hashDisp)
-    display = "" + i + "- "  + hashDisp
-    document.getElementsByTagName("p")[j].textContent = display.substring(1,12);
+    display = "" + i + " "  + hashDisp
+    document.getElementsByTagName("p")[j].textContent = "TS-"+display.substring(1,12);
   }
 }
 

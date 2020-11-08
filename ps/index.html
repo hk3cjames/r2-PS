@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<!-- <html lang="en"> -->
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width" />
   <title>PS-1000 dashboard</title>
   <style>
+    * {
+      font-family: Courier, monospace;
+    }
     body {
       font-size: 12px;
     }
@@ -13,18 +15,18 @@
     .top1 {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      grid-auto-rows: 360px;
+      grid-auto-rows: 600px;
       text-align: center;
-      gap: 0.5em;
+      gap: 1em;
       margin-top: 10mm;
     }
 
     .top1>div {
       background-color: rgb(225, 239, 245);
-      /* padding: 2mm; */
     }
 
     .top10 {
+      margin-top: 30p;
       grid-row: 1/3;
     }
 
@@ -38,23 +40,32 @@
 
     .hashrow {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-auto-rows: 18px;
-      /* font-size: 0.1rem; */
-      text-align: left;
+      grid-template-columns: repeat(10, 1fr);
+      grid-auto-rows: 60px;
     }
-  
+
+    h1 {
+      text-align: center;
+      font-size: 4em;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 3em;
+    }
+
     h3 {
       border: 1px solid rgb(168, 168, 168);
       background-color: rgb(253, 251, 247);
       text-align: center;
       padding: 0.5rem;
-      font-size: large;
+      font-size: 4em;
       margin: 1em;
     }
 
     h4 {
       text-align: left;
+      font-size: 3em;
       margin: 1em;
       margin-bottom: -1em;
     }
@@ -63,24 +74,17 @@
       border: 1px solid rgb(168, 168, 168);
       background-color: rgb(253, 251, 247);
       font-weight: normal;
-      font-size: smaller;
+      font-size: 1.8em;
       text-align: center;
       margin: 2em;
-      margin-top: 3em;
-      padding-top: 4mm;
-      padding-bottom: 4mm;
+      margin-top: 12mm;
+      padding-top: 6mm;
+      padding-bottom: 6mm;
     }
 
-    .textview {
-      width: 400px;
-      height: 40px;
-      font-size: large;
-      text-align: center;
-    }
     .itemDisp {
-      font-size: 4pt;
-      text-align: left;
-      padding-left: 10px;
+      font-size: 14pt;
+      text-align: center;
     }
   </style>
 </head>
@@ -88,25 +92,31 @@
 <body>
   <div class="top1">
     <div class="top10">
+
       <h1>PS-1000 dashboard</h1>
       <h2>TS hash input per cycle </h2>
+      <h2>display TC hash (8..)</h2>
+      <h2>ps1000 listening at port 3100</h2>
+      <h2>connect to DB-C at port 3200</h2>
       <br>
-      <h4>cycle :-</h2>
+      <h4>time :-</h4>
+      <h2 id="time">2020</h>
+
+        <br>
+        <h4>cycle :-</h4>
         <h3 id="tick">123</h3>
         <br>
-        <h4>time :-</h2>
-          <h3 id="time">2020</h3>
-          <br>
-          <h4>hash count :-</h2>
-            <h3 id="count">45678</h3>
-            <br>
-            <h4 name="linkHash">linked hash :-</h2>
-              <h6 id="hash">
-                1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-              </h6>
+        <h4>hash count :-
+      </h2>
+      <h3 id="count">45678</h3>
+      <br>
+      <h4 name="linkHash">linked hash :-</h4>
+      <h6 id="hash">
+        1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+      </h6>
     </div>
     <div name="box0">
-      <div class="hashrow" id="row0">
+      <div class="hashrow">
         <div>
           <p class="itemDisp"> 012- 1234</p>
         </div>

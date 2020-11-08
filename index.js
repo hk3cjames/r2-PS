@@ -89,7 +89,6 @@ app.post("/hashFile", async (req, res) => {
 
 async function intervalFunc() {
   busyFlag = true;
-
   // console.log("PS dashboard display");
   // console.log(tsIn);
   cycleCount = 0;
@@ -104,7 +103,6 @@ async function intervalFunc() {
     }
     dashboardDisp[i] = tsIn[i];  
     tsIn[i] = "";
-
   }
 
   tick = systemTick; // local tick = systemtick
@@ -117,6 +115,7 @@ async function intervalFunc() {
   const data = { tick, psId, chainId, psCycleCount, tsHash};
   // console.log("post json to DB-C")
   // console.log(data);
+  console.log(psCycleCount)
   const options = {
     method: "POST",
     headers: {
