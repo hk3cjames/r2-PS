@@ -118,6 +118,7 @@ async function intervalFunc() {
   console.log(psCycleCount)
   const options = {
     method: "POST",
+    timeout: 300 ,
     headers: {
       "Content-Type": "application/json",
     },
